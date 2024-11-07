@@ -103,7 +103,7 @@ app.put("/assignments/:assignmentId", async (request, reply) => {
   return reply.status(200).send({ assignment });
 });
 
-app.get("/todos/:userId", async (request, reply) => {
+app.get("//:userId", async (request, reply) => {
   const { userId } = request.params;
   const todos = await prisma.todo.findMany({
     where: {
@@ -125,7 +125,7 @@ app.post("/todos/:userId", async (request, reply) => {
   if (!user) {
     return reply.status(401).send({ message: "User not found" });
   }
-  const todo = await prisma.assignment.create({
+  const todo = await prisma.todo.create({
     data: {
       userId,
       title,
