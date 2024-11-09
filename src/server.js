@@ -103,7 +103,7 @@ app.put("/assignments/:assignmentId", async (request, reply) => {
   return reply.status(200).send({ assignment });
 });
 
-app.get("//:userId", async (request, reply) => {
+app.get("/:userId", async (request, reply) => {
   const { userId } = request.params;
   const todos = await prisma.todo.findMany({
     where: {
@@ -134,6 +134,16 @@ app.post("/todos/:userId", async (request, reply) => {
     },
   });
   return reply.status(201).send({ todo });
+});
+
+app.get("/todos/:userId", async (request, reply) => {
+  const { userId } = request.params;
+
+  const todo = await prisma.todo.findMany({
+    where: { userId: userId },
+  });
+
+  return reply.status(200).send({ todo });
 });
 
 app.put("/todos/:todoId", async (request, reply) => {
