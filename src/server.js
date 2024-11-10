@@ -158,6 +158,16 @@ app.put("/todos/:todoId", async (request, reply) => {
   return reply.status(200).send({ todo });
 });
 
+app.delete("/todos/:todoId", async (request, reply) => {
+  const { todoId } = request.params;
+
+  const todo = await prisma.todo.delete({
+    where: { id: todoId },
+  });
+
+  return reply.status(200).send({ todo });
+});
+
 app.get("/subjects/:userId", async (request, reply) => {
   const { userId } = request.params;
   const subjects = await prisma.subject.findMany({
