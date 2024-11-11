@@ -195,7 +195,7 @@ app.get("/subjects/:userId", async (request, reply) => {
     })
   );
 
-  return { gradesBySubject };
+  return { grades: gradesBySubject };
 });
 
 app.post("/subjects/:userId", async (request, reply) => {
@@ -258,9 +258,11 @@ app.post("/grades/:subjectName", async (request, reply) => {
       id: subjectName,
     },
   });
+
   if (!subject) {
     reply.status(401).send({ message: "Subject not found" });
   }
+
   const { label, value, weight } = request.body;
   const grade = await prisma.grade.create({
     data: {
