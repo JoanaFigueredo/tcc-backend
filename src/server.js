@@ -184,7 +184,8 @@ app.get("/subjects/:userId", async (request, reply) => {
         },
       });
       return {
-        subject: subject.name,
+        name: subject.name,
+        calculation: subject.calculation,
         grades: grades.map((grade) => ({
           id: grade.id,
           label: grade.label,
