@@ -176,12 +176,31 @@ app.get("/subjects/:userId", async (request, reply) => {
     },
   });
 
-  return { subjects };
+  const gradesBySubject = await Promise.all(
+    subjects.map(async (subject) => {
+      const grades = await prisma.grade.findMany({
+        where: {
+          subjectId: subject.id,
+        },
+      });
+      return {
+        subject: subject.name,
+        grades: grades.map((grade) => ({
+          id: grade.id,
+          label: grade.label,
+          value: grade.value,
+          weight: grade.weight,
+        })),
+      };
+    })
+  );
+
+  return { gradesBySubject };
 });
 
 app.post("/subjects/:userId", async (request, reply) => {
   const { userId } = request.params;
-  const { name, calculation } = request.body;
+  const { name, calculation, grades } = request.body;
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -191,14 +210,34 @@ app.post("/subjects/:userId", async (request, reply) => {
   if (!user) {
     return reply.status(401).send({ message: "User not found" });
   }
-  const subject = await prisma.subject.create({
-    data: {
-      userId,
+  let subject = await prisma.subject.findFirst({
+    where: {
       name,
-      calculation,
     },
   });
-  return reply.status(201).send({ subject });
+
+  if (!subject) {
+    subject = await prisma.subject.create({
+      data: {
+        userId,
+        name,
+        calculation,
+      },
+    });
+  }
+  const gradesToCreate = grades.map((grade) => {
+    return {
+      subjectId: subject.id,
+      label: grade.label,
+      value: grade.value,
+      weight: grade.weight,
+    };
+  });
+  const newGrades = await prisma.grade.createManyAndReturn({
+    data: gradesToCreate,
+  });
+
+  return reply.status(201).send({ subject, grades: newGrades });
 });
 
 app.get("/grades/:subjectId", async (request, reply) => {
@@ -212,11 +251,11 @@ app.get("/grades/:subjectId", async (request, reply) => {
   return { grades };
 });
 
-app.post("/grades/:subjectId", async (request, reply) => {
-  const { subjectId } = request.params;
+app.post("/grades/:subjectName", async (request, reply) => {
+  const { subjectName } = request.params;
   const subject = await prisma.subject.findUnique({
     where: {
-      id: subjectId,
+      id: subjectName,
     },
   });
   if (!subject) {
