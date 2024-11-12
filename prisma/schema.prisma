@@ -35,7 +35,7 @@ model Subject {
 
 model Grade {
   id String @id @default(cuid())
-  subject Subject @relation(fields: [subjectId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   subjectId String
   label String
   value Decimal
