@@ -197,7 +197,7 @@ app.get("/subjects/:userId", async (request, reply) => {
     })
   );
 
-  return { subjects: gradesBySubject };
+  reply.status(200).send({ subjects: gradesBySubject });
 });
 
 app.put("/subjects/:subjectId", async (request, reply) => {
@@ -207,7 +207,6 @@ app.put("/subjects/:subjectId", async (request, reply) => {
     where: { id: subjectId },
     data: { name, calculation },
   });
-  console.log(grades);
 
   const subjectGrades = await prisma.grade.findMany({
     where: {
@@ -238,7 +237,20 @@ app.put("/subjects/:subjectId", async (request, reply) => {
       return newGrade;
     })
   );
-  return reply.status(200).send({ subject, updatedGrades });
+
+  const deletedObjects = subjectGrades.filter(
+    (g) => !grades.find((g2) => g2.id === g.id)
+  );
+
+  await prisma.grade.deleteMany({
+    where: {
+      id: {
+        in: deletedObjects.map((obj) => obj.id),
+      },
+    },
+  });
+
+  return reply.status(200).send({ ...subject, grades: updatedGrades });
 });
 
 app.post("/subjects/:userId", async (request, reply) => {
@@ -295,11 +307,9 @@ app.delete("/subjects/:userId", async (request, reply) => {
   const { userId } = request.params;
 
   // Delete all grades of the user
-  await prisma.grade.deleteMany({
+  await prisma.subject.deleteMany({
     where: {
-      subject: {
-        userId: userId,
-      },
+      userId,
     },
   });
 
