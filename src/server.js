@@ -90,6 +90,15 @@ app.post("/assignments/:userId", async (request, reply) => {
   return reply.status(201).send({ assignment });
 });
 
+app.delete("/assignments/:assignmentId", async (request, reply) => {
+  const { assignmentId } = request.params;
+  const deletedUsers = await prisma.assignment.delete({
+    where: { id: assignmentId },
+  });
+
+  reply.status(200).send({ deletedUsers });
+});
+
 // Edit assignment
 app.put("/assignments/:assignmentId", async (request, reply) => {
   const { assignmentId } = request.params;
