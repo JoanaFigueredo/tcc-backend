@@ -12,12 +12,6 @@ app.register(cors, {
 
 const prisma = new PrismaClient();
 
-// Habilitar CORS para todas as rotas
-app.register(fastifyCors, {
-  origin: true, // Permitir requisições de qualquer origem
-  methods: ["GET", "POST", "PUT", "DELETE"], // Métodos permitidos
-});
-
 // Rota de login
 app.post("/login", async (request, reply) => {
   const { email, password } = request.body;
