@@ -230,6 +230,20 @@ app.put("/subjects/:subjectId", async (request, reply) => {
     },
   });
 
+  const gradesToDelete = subjectGrades.filter(
+    (oldGrade) => !grades.some((grade) => grade.id === oldGrade.id)
+  );
+
+  if (gradesToDelete.length > 0) {
+    await prisma.grade.deleteMany({
+      where: {
+        id: {
+          in: gradesToDelete.map((obj) => obj.id),
+        },
+      },
+    });
+  }
+
   const updatedGrades = await Promise.all(
     grades.map(async (grade) => {
       const { label, value, weight } = grade;
