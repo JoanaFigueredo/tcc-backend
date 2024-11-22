@@ -51,5 +51,6 @@ model Todo {
   title       String
   description String
   isComplete  Boolean
+  createdAt DateTime @default(now())
   user        User    @relation(fields: [userId], references: [id])
 }
